@@ -1,56 +1,18 @@
 import pandas as pd
 import numpy as np
 import matplotlib
+import readDataUtil
 from graph_tool.all import *
 
 #==================================================================== 
 # load data
 #==================================================================== 
-df_trajectories = None
-df_travel_segment = None
-
-reparse = False
-
-if reparse:
-  df_trajectories = pd.read_csv('../dataSets/training/trajectories_table_5_training.csv')
-  df_trajectories["starting_time"] = pd.to_datetime(df_trajectories["starting_time"])
-  
-  idx=0
-  link_id =[]
-  starting_time = []
-  travel_time = []
-  for aRow in df_trajectories["travel_seq"]:
-    if (idx%1000==0): print(idx)
-    idx+=1
-    segments = aRow.split(";")
-    for aSeg in segments:
-      data = aSeg.split("#")
-      #df_travel_segment.append([ data[0], pd.datetime.strptime(data[1], '%Y-%m-%d %H:%M:%S'), float(data[2])], ignore_index=True)
-      link_id.append(data[0])
-      starting_time.append(pd.datetime.strptime(data[1], '%Y-%m-%d %H:%M:%S'))
-      travel_time.append(float(data[2]))
-  
-  df_travel_segment = pd.DataFrame( {
-                                      "link_id"       : link_id,
-                                      "starting_time" : starting_time,
-                                      "travel_time"   : travel_time,
-                                    })
-  df_travel_segment['day_of_week'] = df_travel_segment['starting_time'].dt.dayofweek
-  df_travel_segment['minute_block'] = df_travel_segment["starting_time"].map( lambda t : "%02d%02d" % (t.hour, int(t.minute/20)*20))
-  
-  df_trajectories.to_pickle("df_trajectories.pkl")
-  df_travel_segment.to_pickle("df_travel_segment.pkl")
-
-else:
-  df_trajectories = pd.read_pickle("df_trajectories.pkl")
-  df_travel_segment = pd.read_pickle("df_travel_segment.pkl")
+df_trajectories, df_travel_segment = readDataUtil.read_trajectory("df_trajectories.pkl", "df_travel_segment.pkl")
+#df_trajectories, df_travel_segment = readDataUtil.read_trajectory("../dataSets/training/trajectories_table_5_training.csv")
 
 #==================================================================== 
 # group data be weekday and/or 20min bin
 #==================================================================== 
-
-df_trajectories['day_of_week'] = df_trajectories['starting_time'].dt.dayofweek
-df_trajectories['minute_block'] = df_trajectories["starting_time"].map( lambda t : "%02d%02d" % (t.hour, int(t.minute/20)*20))
 
 avg_segment_time_week = df_travel_segment.groupby( ['day_of_week', 'minute_block', 'link_id']).aggregate(np.average)
 avg_route_time_week   = df_trajectories.groupby( ['intersection_id', 'tollgate_id', 'day_of_week', 'minute_block',]).aggregate(np.average)
