@@ -1,6 +1,9 @@
 # KDD2017_CUHK
 KDD 2017 team from CUHK
 
+# Preprocessed Data Description
+https://github.com/studdykid/KDD2017_CUHK/wiki/About-joined-csv-table
+
 
 # Data Feature:
 ## Chinese Holidays:
