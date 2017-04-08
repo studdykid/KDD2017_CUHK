@@ -1,11 +1,14 @@
 import pandas as pd
 import numpy as np
+import datetime
 import readDataUtil
 
-df_trajectories, df_travel_segment = readDataUtil.read_trajectory("../../dataSets/training/trajectories_table_5_training.csv")
+
+datapath = "../../../../data/original_dataset/"
+df_trajectories, df_travel_segment = readDataUtil.read_trajectory(datapath+"/training/trajectories_table_5_training.csv")
 #df_trajectories, df_travel_segment = readDataUtil.read_trajectory("df_trajectories.pkl", "df_travel_segment.pkl")
-df_volume = readDataUtil.read_volume("../../dataSets/training/volume_table_6_training.csv")
-df_weather = readDataUtil.read_weather("../../dataSets/training/weather_table_7_training_update.csv")
+df_volume = readDataUtil.read_volume(datapath+"/training/volume_table_6_training.csv")
+df_weather = readDataUtil.read_weather(datapath+"/training/weather_table_7_training_update.csv")
 
 times = pd.date_range('09/20/2016' , '10/18/2016', freq="3H")
 #times = pd.date_range('09/20/2016' , '09/22/2016', freq="3H")
@@ -132,6 +135,23 @@ for dt in [0,180]:
     colname = 'dt%i_%s'%(dt,w)
     colnames.append(colname)
     d[colname] = col
+
+# fill chinese holiday
+def is_holiday(t):
+  rdate = t.date()
+  if rdate>=datetime.date(2016, 9,15) and rdate<=datetime.date(2016, 9,17): return 1 #mid autum holiday
+  if rdate==datetime.date(2016, 9,18): return 0
+  if rdate>=datetime.date(2016,10, 1) and rdate<=datetime.date(2016,10, 7): return 1 #national holiday
+  if rdate>=datetime.date(2016,10, 8) and rdate<=datetime.date(2016,10, 9): return 0
+  if t.dayofweek == 0 or t.dayofweek == 6: return 1 # sun or sat
+  return 0 #weekdays
+
+col = []
+for aTime in times:
+  col.append( is_holiday(aTime) )
+
+colnames.append('is_holiday')
+d['is_holiday'] = col
   
 print('columns in output table:')
 for aColName in colnames:
