@@ -104,7 +104,7 @@ for (tid,io) in vols:
       d[colname] = col
 
 # fill route median data
-for dt in range(0,120,20):
+for dt in range(0,240,20):
   for (p,q) in routes:
     col = []
     for aTime in times:
