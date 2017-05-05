@@ -160,3 +160,4 @@ for aColName in colnames:
 
 df_merged_volume = pd.DataFrame( data=d , columns=colnames)
 df_merged_volume.to_csv('phase1_training_vol_route_weather_joined_table.csv', index=False)
+df_merged_volume.to_pickle('phase1_training_vol_route_weather_joined_table.pkl')
